@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script src="js/cookie.js"></script>
+    <title></title>
+    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2017.2.621/styles/kendo.common-material.min.css" />
+    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2017.2.621/styles/kendo.material.min.css" />
+    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2017.2.621/styles/kendo.material.mobile.min.css" />
+    <link rel="stylesheet"  href="css/custom.css" /> 
+    <link rel="stylesheet" href="css/bootstrap.css"> 
+ 
+  <!-- <link rel="stylesheet" href="css/personalizar.css"> -->
+
+    <script src="https://kendo.cdn.telerik.com/2017.2.621/js/jquery.min.js"></script>
+    <script src="https://kendo.cdn.telerik.com/2017.2.621/js/kendo.all.min.js"></script>
+    <script src="https://kendo.cdn.telerik.com/2017.2.621/js/messages/kendo.messages.es-ES.min.js"></script>
+    <script src="http://cdn.kendostatic.com/2013.2.716/js/cultures/kendo.culture.es-ES.min.js"></script>
+
+    <script src="https://bs-static.cdn.telerik.com/latest/everlive.all.min.js"></script>
+
+    <base href="http://demos.telerik.com/kendo-ui/donut-charts/remote-data-binding">
+    <base href="http://demos.telerik.com/kendo-ui/grid/local-data-binding">
+
+    <script type="text/javascript">
+        kendo.culture("es-ES");
+    </script>
+
+    
+</head>
+
+<body id="monitoreo"> 
+        
+    <div class="row">
+            <div class="col-md-2">
+             
+                    <div id="mySidenav" class="sidenav"> 
+                        
+                      <a onclick='home()'>Home</a>
+                      <a onclick="devices()" >Devices</a>
+                      <a onclick="createDevice()" >Create a new Device</a>
+                      <a onclick="reports()" >Reports</a>
+                      <a onclick="setting()" >Setting</a>
+                      <a onclick="cerrarS()" >Cerrar Sesión</a>
+  
+                    </div>
+ 
+            </div> 
+ 
+            <div class="col-md-10">
+                <div class="row">
+                    <div class="col-md-8">
+                        <!-- <h2> Admin Cliente </h2> -->
+                        <!-- <h4>Resumen</h4> -->
+                        <div id="resumen"></div>
+                          <p class="card">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Est explicabo aspernatur ullam voluptatem consectetur neque necessitatibus dolor, aut beatae consequatur animi qui ea, eius autem perferendis reiciendis in sit officiis.Lorem ipsum dolor sit amet, co Lorem ipsum dolor sit amet, consectetur adipisicing elit. Obcaecati explicabo accusantium consequatur quam culpa illum perferendis quidem ipsam quis maiores architecto similique velit fuga, error adipisci natus, dolore eum, beatae!    nsectetur adipisicing elit. Delectus iste praesentium quibusdam, harum soluta quas provident culpa! Quas, quae fugit iure praesentium quidem nostrum exercitationem soluta sit a illum. Magnam.Lorem ipsum dolor sit amet, consectetur adipisicing elit. A, ipsa sequi fugit, consequatur nisi fugiat ex quaerat ducimus ipsum minima dolores labore molestiae soluta odio dolorem aliquam ad porro, commodi.</p>
+                    </div>
+                    <div class="col-md-4">
+                         
+                             <div class="" id="chart"></div>
+                        
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="card-1" id="grid"></div>  
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <!-- <div  class="card-1" id="configuraciones"></div> -->
+                        </div>
+                    </div>
+                     
+                </div>
+            </div>
+            
+            
+    </div>
+    
+
+    <script>
+        $(document).ready(function() {  
+  
+            var everlive = new Everlive({
+                apiKey: "x7ncbk69r5atfhqt",
+                scheme: "http"
+            }); 
+           
+               // var token = [
+               //      {"token": Cookies.get('user')},
+               //      {"token": Cookies.get('token')}
+               // ]
+                
+            var datosCliente = Cookies.get("cliente");
+            datosCliente =  JSON.parse(datosCliente);
+         
+             
+         
+            $("#resumen").kendoGrid({
+            // data: [{ names: Cookies.get('user') +" "+Cookies.get('token')+" "+Cookies.get('cliente') +" "+Cookies.get('Id')}]
+                dataSource: { 
+
+                    data: datosCliente,
+                    serverFiltering: true,  
+
+                    schema: {
+                        model: { 
+                            fields: {
+                                nombre: {
+                                    type: "string"
+                                },  
+                                 licencia: {
+                                    type: "date"
+                                },  
+                            }
+                        }
+                    },
+                    
+                    change: function(e) { 
+                    }, 
+                },
+              
+                scrollable: false,
+                 
+                change: function(e) {
+                    
+                }, 
+            
+                columns: [{
+                    field: "nombre",
+                    title: "Usuario",
+                    attributes: {
+                        style: "text-align: center;"
+                    },
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            operator: "contains"
+                        }
+                    }, 
+                },
+                {
+                  field: "licencia",
+                  title: "licencia",
+                  attributes: {
+                      style: "text-align: center;"
+                  },
+                  filterable: {
+                      cell: {
+                          showOperators: false,
+                          operator: "contains"
+                      }
+                  }, 
+                },
+
+
+                ] 
+            });
+          
+            $("#chart").kendoChart({
+
+              dataSource: {
+                  data: []
+              },
+              title: {
+                  text: "Gráfico de semaforización"
+              },
+              seriesDefaults: {
+                  labels: {
+                      template: "#= kendo.format('{0:P}', percentage)#",
+                      position: "outsideEnd",
+                      visible: true,
+                      background: "transparent"
+                  }
+              },
+              series: [{
+                  type: "donut",
+                  field: "cantidad"
+              }],
+              tooltip: {
+                  visible: true,
+                  template: "#= dataItem.categoria #: #= value #"
+              }
+            }); 
+                
+           //extender
+           var expandObject = {
+                // expand: "provincias", 
+
+                "distrito": { // campo de mi tabla actual tiendas
+                         "TargetTypeName": "distritos", // tabla padre de la relacion 
+                         "SingleField": "nombre", // solo un campo de la tabla padre // la otra tabla 
+                   }, 
+                "provincia": { // campo de mi tabla actual tiendas
+                        "TargetTypeName": "provincias", // tabla padre de la relacion 
+                        "SingleField": "nombre", // solo un campo de la tabla padre // la otra tabla 
+                   },
+                "departamento": { // campo de mi tabla actual tiendas
+                          "TargetTypeName": "departamentos", // tabla padre de la relacion 
+                          "SingleField": "nombre", // solo un campo de la tabla padre // la otra tabla 
+                   },
+                "dispositivo": { // campo de mi tabla actual tiendas
+                           "TargetTypeName": "dispositivos", // tabla padre de la relacion 
+                           // "SingleField": "", // solo un campo de la tabla padre // la otra tabla  
+                           // "SingleField": "mac", // solo un campo de la tabla padre // la otra tabla  
+                   }, 
+           }; 
+
+           console.log(datosCliente.Id);
+           var filterObject = {
+                "cliente": { "$eq": datosCliente.Id }
+            };
+            console.log(filterObject);
+            $("#grid").kendoGrid({
+                dataSource: {
+                    type: "everlive",
+                    transport: { 
+                        typeName: "tiendas",
+                        read: { 
+                            contentType: "application/json",
+                            headers: {
+                                "X-Everlive-Expand": JSON.stringify(expandObject),
+                                "X-Everlive-Filter": JSON.stringify(filterObject)
+                            },  
+                        } 
+                    },
+
+                    serverFiltering: true,
+                    // data: datosCliente,
+
+                    schema: {
+                        model: {
+                            // Id: datosCliente,
+                            fields: {
+                                nombre: {
+                                    type: "string"
+                                },
+                                distrito: {
+                                    type: "string"
+                                },
+                                provincia: {
+                                    type: "string"
+                                },
+                                
+                                departamento: {
+                                    type: "string"
+                                },
+                                 ubicacion: {
+                                    type: "string"
+                                },
+                                 piso: {
+                                    type: "string"
+                                },
+                                 dispositivos: {
+                                    type: "string"
+                                }, 
+                                 mac: {
+                                    type: "string"
+                                }, 
+                                id: Everlive.idField
+                            }
+                        },
+                        // children: "provincias",
+                    },
+                    change: function(e) { 
+                    },
+
+                   
+                },
+                // detailTemplate: "<div>Name: #: CreatedAt #</div>",
+                 
+                scrollable: false,
+                sortable: true,
+                filterable: {
+                    mode: "row"
+                },
+                 groupable: true,
+                // filterable: true,
+                change: function(e) {
+                },  
+                columns: [{
+                    field: "nombre",
+                    title: "Tienda",
+                    attributes: {
+                        style: "text-align: center;"
+                    },
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            operator: "contains"
+                        }
+                    }, 
+                },
+                 {
+                    field: "distrito",
+                    title: "Distrito",
+                    attributes: {
+                        style: "text-align: center;"
+                    },
+                    filterable: {
+                        cell: {
+                            showOperators: false,
+                            operator: "contains"
+                        }
+                    },
+                }, 
+                {
+                    field: "provincia",
+                    title: "Provincia",
+                    filterable: false,
+                    attributes: {
+                        style: "text-align: center;",
+                            operator: "contains"       
+                    }
+                },
+                {
+                    field: "departamento",
+                    title: "Departamento",
+                    filterable: false,
+                    attributes: {
+                        style: "text-align: center;",
+                            operator: "contains"
+
+                    }
+                },
+                 {
+                   
+                    field: "dispositivo.ubicacion",
+                    title: "Ubicación",
+                    // format: "{0:dd MMM yyyy}",
+                    attributes: {
+                        style: "text-align: center;"
+                    }
+                },
+                 {
+                    field: "dispositivo.piso",
+                    title: "Piso",
+                    filterable: false,
+                    attributes: {
+                        style: "text-align: center;"
+                    }
+                }, {
+                    field: "dispositivo.mac",
+                    title: "Dispositivo",
+                    filterable: false,
+
+                    attributes: {
+                        style: "text-align: center;"
+                    }
+                }
+                ]
+                , editable: "popup"
+                // , editable: true
+            });
+
+
+            $("#grid").delegate("tbody>tr", "dblclick", function () {
+                            if (!$(this).hasClass('k-grid-edit-row')) {
+                                $("#grid").data("kendoGrid").editRow($(this));
+                            }
+                });
+            });
+                 
+
+    
+            function home(){
+               window.location.replace("http://localhost/workspace/proyecto-invian/adminadbeacons-cliente/desa.html"); 
+            }
+
+            function createDevice(){
+               window.location.replace("http://localhost/workspace/proyecto-invian/adminadbeacons-cliente/dispositivos.html"); 
+            }
+      
+
+            function cerrarS() {
+                window.location.replace("http://localhost/workspace/proyecto-invian/adminadbeacons-cliente/login.html");
+                Cookies.remove('token');
+            }
+    </script> 
+
+
+ 
+
+ 
+   
+</body>
+
+</html>
